@@ -1,0 +1,6 @@
+1, nest js config
+read availabel in env file
+
+2, Reflection and metadata
+provide ability to attach custom metadata to router handlers through decorator create via Reflector#createDecorator
+with @SetMetadata you have more control over the metadata key and value, and also can create decorators that take more than one argument.
