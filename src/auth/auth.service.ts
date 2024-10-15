@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import * as bcrypt from 'bcrypt';
 
 const configService = new ConfigService();
 
@@ -17,7 +18,9 @@ export class AuthService {
     pass: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userService.findOne(username);
-    if (user?.password !== pass) {
+
+    const isMatch = await bcrypt.compare(pass, user.password);
+    if (!isMatch) {
       throw new UnauthorizedException();
     }
 
@@ -36,6 +39,13 @@ export class AuthService {
       secret: configService.getOrThrow('JWT_REFRESH_KEY'),
       expiresIn: '7d',
     });
+
+    await this.userService.updateUser(
+      {
+        refreshToken: refreshToken,
+      },
+      user.id,
+    );
 
     return {
       access_token: accessToken,

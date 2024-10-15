@@ -29,6 +29,10 @@ export class User {
   })
   role: UserRole;
 
+  @Column({ nullable: true })
+  @Exclude()
+  refreshToken: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
