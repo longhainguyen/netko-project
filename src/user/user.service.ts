@@ -24,6 +24,14 @@ export class UserService {
     });
   }
 
+  async findOneById(id: number): Promise<User | undefined> {
+    return await this.userRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+  }
+
   async findAll(): Promise<User[] | undefined> {
     return await this.userRepository.find();
   }
@@ -40,7 +48,7 @@ export class UserService {
 
       return await this.userRepository.save(newUser);
     } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY') {
+      if (error.code === '23505') {
         throw new BadRequestException('Username already exists');
       }
       throw error;

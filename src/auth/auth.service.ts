@@ -52,4 +52,48 @@ export class AuthService {
       refresh_token: refreshToken,
     };
   }
+
+  async refresh(
+    refreshToken: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: configService.getOrThrow('JWT_REFRESH_KEY'),
+      });
+
+      const user = await this.userService.findOneById(+payload.sub);
+
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException();
+      }
+
+      const newAccessToken = await this.jwtService.signAsync(
+        { sub: user.id, username: user.username, role: user.role },
+        {
+          secret: configService.getOrThrow('JWT_ACCESS_KEY'),
+          expiresIn: '15m',
+        },
+      );
+
+      const newRefreshToken = await this.jwtService.signAsync(
+        { sub: user.id, username: user.username, role: user.role },
+        {
+          secret: configService.getOrThrow('JWT_REFRESH_KEY'),
+          expiresIn: '7d',
+        },
+      );
+
+      await this.userService.updateUser(
+        { refreshToken: newRefreshToken },
+        user.id,
+      );
+
+      return {
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+      };
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
 }
