@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { AuthorBook } from 'src/author-books/author-book.entity';
 import { UserRole } from 'src/constant/enum/role.enum';
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -32,4 +34,7 @@ export class User {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
+
+  @OneToMany(() => AuthorBook, (authorBook) => authorBook.user)
+  authorBooks: AuthorBook[];
 }
