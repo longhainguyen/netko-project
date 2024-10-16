@@ -1,4 +1,10 @@
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class CreateBookDto {
   @IsNotEmpty({ message: 'The userName is required' })
@@ -7,4 +13,8 @@ export class CreateBookDto {
 
   @IsDate()
   publishedDate: Date;
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  authorIds: number[];
 }

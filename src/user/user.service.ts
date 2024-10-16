@@ -1,9 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UserRole } from 'src/constant/enum/role.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -30,6 +34,27 @@ export class UserService {
         id: id,
       },
     });
+  }
+
+  async findByIds(ids: number[]): Promise<User[]> {
+    const users = await this.userRepository.findBy({ id: In(ids) });
+
+    if (users.length !== ids.length) {
+      const notFoundIds = ids.filter((id) => {
+        if (
+          !users.some((user) => {
+            return user.id === +id;
+          })
+        ) {
+          return id;
+        }
+      });
+      throw new NotFoundException(
+        `Users with IDs ${notFoundIds.join(', ')} not found`,
+      );
+    }
+
+    return users;
   }
 
   async findAll(): Promise<User[] | undefined> {
