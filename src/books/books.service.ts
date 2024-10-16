@@ -3,10 +3,11 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Like, Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { AuthorBook } from 'src/author-books/author-book.entity';
 import { QueryBooksDto } from './dto/query-book.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class BooksService {
@@ -74,5 +75,26 @@ export class BooksService {
       .from(Book)
       .where('id = :id', { id: id })
       .execute();
+  }
+
+  async searchBooks(paginationDto: PaginationDto) {
+    const skip =
+      paginationDto.page & paginationDto.limit
+        ? (+paginationDto.page - 1) * +paginationDto.limit
+        : 0;
+
+    const [data, total] = await this.booksRepository
+      .createQueryBuilder()
+      .select()
+      .where('title ILIKE :keyword', { keyword: `%${paginationDto.keyword}%` })
+      .orderBy('title', 'ASC')
+      .skip(skip)
+      .take(paginationDto.limit ? paginationDto.limit : 10)
+      .getManyAndCount();
+
+    return {
+      data: data,
+      count: total,
+    };
   }
 }

@@ -12,6 +12,7 @@ import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { QueryBooksDto } from './dto/query-book.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('books')
 export class BooksController {
@@ -40,5 +41,10 @@ export class BooksController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.booksService.remove(+id);
+  }
+
+  @Get()
+  getBooks(@Query() paginationDto: PaginationDto) {
+    return this.booksService.searchBooks(paginationDto);
   }
 }

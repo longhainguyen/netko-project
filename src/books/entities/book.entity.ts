@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -14,6 +15,7 @@ export class Book {
   id: number;
 
   @Column()
+  @Index()
   title: string;
 
   @Column({ type: 'date' })
