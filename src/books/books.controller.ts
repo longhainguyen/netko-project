@@ -18,12 +18,16 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { QueryBooksDto } from './dto/query-book.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { Book } from './entities/book.entity';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserRole } from 'src/constant/enum/role.enum';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
+  @Roles(UserRole.Admin)
   async create(@Body() createBookDto: CreateBookDto) {
     try {
       return await this.booksService.create(createBookDto);
@@ -39,6 +43,7 @@ export class BooksController {
   }
 
   @Get('published')
+  @Public()
   async findAllByPublishedDay(@Query() queryBooksDto: QueryBooksDto) {
     try {
       return await this.booksService.findAllByPublishedDay(queryBooksDto);
@@ -53,7 +58,23 @@ export class BooksController {
     }
   }
 
+  @Public()
+  async findAll() {
+    try {
+      return await this.booksService.findAll();
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Unable to query book .',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   @Get(':id')
+  @Public()
   async findOne(@Param('id') id: string) {
     try {
       return await this.booksService.findOne(+id);
@@ -72,6 +93,7 @@ export class BooksController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.Admin)
   update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
     try {
       return this.booksService.update(+id, updateBookDto);
@@ -81,6 +103,7 @@ export class BooksController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.Admin)
   remove(@Param('id') id: string) {
     try {
       return this.booksService.remove(+id);
@@ -90,6 +113,7 @@ export class BooksController {
   }
 
   @Get()
+  @Public()
   getBooks(@Query() paginationDto: PaginationDto) {
     try {
       return this.booksService.searchBooks(paginationDto);

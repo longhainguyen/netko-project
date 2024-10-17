@@ -64,6 +64,10 @@ export class BooksService {
     });
   }
 
+  async findAll(): Promise<Book[]> {
+    return await this.booksRepository.find();
+  }
+
   async update(id: number, updateBookDto: UpdateBookDto) {
     return await this.booksRepository.update(id, updateBookDto);
   }

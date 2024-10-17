@@ -12,6 +12,7 @@ import { WeatherController } from './weather/weather.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'db/data-source';
 import { BooksModule } from './books/books.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { BooksModule } from './books/books.module';
     UserModule,
     AuthModule,
     BooksModule,
+    CategoryModule,
   ],
   controllers: [AppController, WeatherController],
   providers: [

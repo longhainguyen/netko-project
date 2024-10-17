@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { AuthorBook } from '../../author-books/author-book.entity';
+import { Category } from 'src/category/entities/category.entity';
 
 @Entity()
 export class Book {
@@ -29,4 +31,7 @@ export class Book {
 
   @OneToMany(() => AuthorBook, (authorBook) => authorBook.book)
   authorBooks: AuthorBook[];
+
+  @ManyToOne(() => Category, (category) => category.books)
+  category: Category;
 }
