@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { AuthorBook } from 'src/author-books/author-book.entity';
 import { UserRole } from 'src/constant/enum/role.enum';
+import { Verification } from 'src/verification/entities/verification.entity';
 import {
   Entity,
   Column,
@@ -17,6 +18,12 @@ export class User {
 
   @Column({ unique: true })
   username: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column({ nullable: true, type: Date })
+  emailVerifiedAt: Date;
 
   @Column()
   @Exclude()
@@ -41,4 +48,7 @@ export class User {
 
   @OneToMany(() => AuthorBook, (authorBook) => authorBook.user)
   authorBooks: AuthorBook[];
+
+  @OneToMany(() => Verification, (verification) => verification.user)
+  verifications: Verification[];
 }

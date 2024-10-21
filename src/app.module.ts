@@ -13,6 +13,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'db/data-source';
 import { BooksModule } from './books/books.module';
 import { CategoryModule } from './category/category.module';
+import { MailModule } from './mail/mail.module';
+import { VerificationModule } from './verification/verification.module';
+import { AccountGuard } from './auth/account.guard';
 
 @Module({
   imports: [
@@ -22,6 +25,8 @@ import { CategoryModule } from './category/category.module';
     AuthModule,
     BooksModule,
     CategoryModule,
+    MailModule,
+    VerificationModule,
   ],
   controllers: [AppController, WeatherController],
   providers: [
@@ -29,6 +34,10 @@ import { CategoryModule } from './category/category.module';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AccountGuard,
     },
     {
       provide: APP_GUARD,
