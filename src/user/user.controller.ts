@@ -19,11 +19,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { User } from './entities/user.entity';
 import { Public } from 'src/decorators/public.decorator';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserFromCreateDto } from './dto/update-user.dto';
 import { MailService } from 'src/mail/mail.service';
 import e from 'express';
 import { AccountGuard } from 'src/auth/account.guard';
 import { NoAccountGuard } from 'src/decorators/no-account-guard.decorator';
+import { validate } from 'class-validator';
 
 @Controller('users')
 export class UserController {
@@ -57,7 +58,7 @@ export class UserController {
   }
 
   @Put('profile')
-  async update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Request() req, @Body() updateUserDto: UpdateUserFromCreateDto) {
     try {
       const userId = +req.user.id;
 
@@ -72,6 +73,8 @@ export class UserController {
         data: updatedUser,
       };
     } catch (error) {
+      // console.log(error);
+
       throw new HttpException(
         {
           status: HttpStatus.BAD_GATEWAY,

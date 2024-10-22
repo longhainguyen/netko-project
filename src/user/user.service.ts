@@ -74,6 +74,7 @@ export class UserService {
 
       const newUser = this.userRepository.create({
         username: createUserDto.username,
+        email: createUserDto.email,
         password: hashedPassword,
       });
 
@@ -87,6 +88,11 @@ export class UserService {
   }
 
   async updateUser(updateUserDto: UpdateUserDto, id: number) {
+    if (updateUserDto.password) {
+      const salt = await bcrypt.genSalt();
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt);
+    }
+
     return await this.userRepository
       .createQueryBuilder()
       .update(User)

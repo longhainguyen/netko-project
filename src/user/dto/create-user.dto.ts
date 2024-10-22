@@ -9,6 +9,9 @@ export class CreateUserDto extends OmitType(User, [
   'role',
   'refreshToken',
   'authorBooks',
+  'emailVerifiedAt',
+  'authorBooks',
+  'verifications',
 ] as const) {
   @IsNotEmpty({ message: 'The userName is required' })
   @Length(3, 255)
@@ -18,4 +21,8 @@ export class CreateUserDto extends OmitType(User, [
   @IsNotEmpty({ message: 'The password is required' })
   @IsString()
   password: string;
+
+  @IsNotEmpty({ message: 'The password is required' })
+  @IsString()
+  email: string;
 }

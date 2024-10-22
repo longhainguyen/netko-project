@@ -1,8 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
+import { NotFoundError } from 'rxjs';
 
 const configService = new ConfigService();
 
@@ -18,6 +23,10 @@ export class AuthService {
     pass: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userService.findOne(username);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
