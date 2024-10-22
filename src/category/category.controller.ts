@@ -16,12 +16,16 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Public } from 'src/decorators/public.decorator';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/constant/enum/role.enum';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('categories')
 @Controller('categories')
+@ApiBearerAuth('JWT-auth')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
+  @ApiOperation({ summary: 'create a category' })
   @Roles(UserRole.Admin)
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     try {
@@ -32,6 +36,7 @@ export class CategoryController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Retrieve all categories' })
   @Public()
   async findAll() {
     try {
@@ -43,6 +48,7 @@ export class CategoryController {
 
   @Get(':id')
   @Public()
+  @ApiOperation({ summary: 'Retreieve a category' })
   async findOne(@Param('id') id: string) {
     try {
       return await this.categoryService.findAll();
@@ -52,6 +58,7 @@ export class CategoryController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a category' })
   async update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,

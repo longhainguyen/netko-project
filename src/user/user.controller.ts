@@ -25,8 +25,16 @@ import e from 'express';
 import { AccountGuard } from 'src/auth/account.guard';
 import { NoAccountGuard } from 'src/decorators/no-account-guard.decorator';
 import { validate } from 'class-validator';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
+@ApiBearerAuth('JWT-auth')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -36,12 +44,14 @@ export class UserController {
 
   @Get()
   @Roles(UserRole.Admin)
+  @ApiOperation({ summary: 'Get all users' })
   @UseInterceptors(ClassSerializerInterceptor)
   getAllUsers() {
     return this.userService.findAll();
   }
 
   @Post('/sign-up')
+  @ApiOperation({ summary: 'Create a new user' })
   async create(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.userService.createUser(createUserDto);
@@ -58,6 +68,13 @@ export class UserController {
   }
 
   @Put('profile')
+  @ApiOperation({ summary: 'Update a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Người dùng đã được cập nhật thành công',
+    type: User,
+  })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy người dùng' })
   async update(@Request() req, @Body() updateUserDto: UpdateUserFromCreateDto) {
     try {
       const userId = +req.user.id;
@@ -86,6 +103,7 @@ export class UserController {
   }
 
   @NoAccountGuard()
+  @ApiOperation({ summary: 'Create a verification-otp' })
   @Post('verification-otp')
   async generateEmailVerification(@Request() req) {
     try {
@@ -111,6 +129,7 @@ export class UserController {
 
   @NoAccountGuard()
   @Post('verify/:otp')
+  @ApiOperation({ summary: 'verify a otp' })
   async verifyEmail(@Param('otp') otp: string, @Request() req) {
     try {
       const result = await this.userService.verifyEmail(req.user.id, otp);

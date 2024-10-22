@@ -21,12 +21,16 @@ import { Book } from './entities/book.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/constant/enum/role.enum';
 import { Public } from 'src/decorators/public.decorator';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('books')
 @Controller('books')
+@ApiBearerAuth('JWT-auth')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a book' })
   @Roles(UserRole.Admin)
   async create(@Body() createBookDto: CreateBookDto) {
     try {
@@ -43,6 +47,7 @@ export class BooksController {
   }
 
   @Get('published')
+  @ApiOperation({ summary: 'Retrieve books by published day' })
   @Public()
   async findAllByPublishedDay(@Query() queryBooksDto: QueryBooksDto) {
     try {
@@ -59,6 +64,8 @@ export class BooksController {
   }
 
   @Public()
+  @Get('all-books')
+  @ApiOperation({ summary: 'Retrieve books' })
   async findAll() {
     try {
       return await this.booksService.findAll();
@@ -75,6 +82,7 @@ export class BooksController {
 
   @Get(':id')
   @Public()
+  @ApiOperation({ summary: 'Retrieve a books by ID' })
   async findOne(@Param('id') id: string) {
     try {
       return await this.booksService.findOne(+id);
@@ -94,6 +102,7 @@ export class BooksController {
 
   @Patch(':id')
   @Roles(UserRole.Admin)
+  @ApiOperation({ summary: 'Update a book' })
   update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
     try {
       return this.booksService.update(+id, updateBookDto);
@@ -114,6 +123,7 @@ export class BooksController {
 
   @Get()
   @Public()
+  @ApiOperation({ summary: 'Retrieve books by keyword' })
   getBooks(@Query() paginationDto: PaginationDto) {
     try {
       return this.booksService.searchBooks(paginationDto);
