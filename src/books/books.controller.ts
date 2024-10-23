@@ -107,7 +107,7 @@ export class BooksController {
     try {
       return this.booksService.update(+id, updateBookDto);
     } catch (error) {
-      throw new NotFoundException();
+      throw new Error(error.message || 'Book not found or category not found');
     }
   }
 

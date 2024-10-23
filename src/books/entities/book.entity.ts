@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -32,6 +33,10 @@ export class Book {
   @OneToMany(() => AuthorBook, (authorBook) => authorBook.book)
   authorBooks: AuthorBook[];
 
+  @Column({ name: 'category_id', nullable: true })
+  categoryId: number;
+
   @ManyToOne(() => Category, (category) => category.books)
+  @JoinColumn({ name: 'category_id' })
   category: Category;
 }

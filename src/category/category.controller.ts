@@ -51,7 +51,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Retreieve a category' })
   async findOne(@Param('id') id: string) {
     try {
-      return await this.categoryService.findAll();
+      return await this.categoryService.findOne(+id);
     } catch (error) {
       throw new BadRequestException();
     }

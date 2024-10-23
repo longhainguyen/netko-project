@@ -1,13 +1,14 @@
-import { Injectable, Query } from '@nestjs/common';
+import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
-import { EntityManager, Like, Repository } from 'typeorm';
+import { EntityManager, In, Like, Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { AuthorBook } from 'src/author-books/author-book.entity';
 import { QueryBooksDto } from './dto/query-book.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { Category } from 'src/category/entities/category.entity';
 
 @Injectable()
 export class BooksService {
@@ -50,9 +51,12 @@ export class BooksService {
 
   async findAllByPublishedDay(queryBooksDto: QueryBooksDto): Promise<Book[]> {
     const date = new Date(queryBooksDto.publishedDate);
+
     return await this.booksRepository
       .createQueryBuilder('book')
-      .where('book.publishedDate = :date', { date })
+      .where('book.publishedDate = :date', {
+        date: date,
+      })
       .getMany();
   }
 
@@ -69,10 +73,57 @@ export class BooksService {
   }
 
   async update(id: number, updateBookDto: UpdateBookDto) {
-    return await this.booksRepository.update(id, updateBookDto);
+    const { authorIds, ...updateData } = updateBookDto;
+    return await this.booksRepository.manager.transaction(
+      async (entityManager) => {
+        if (updateData.categoryId != null) {
+          const category = await entityManager.findOne(Category, {
+            where: { id: updateData.categoryId },
+          });
+          if (!category) {
+            throw new NotFoundException(
+              `Category with ID ${updateData.categoryId} not found`,
+            );
+          }
+        }
+
+        if (authorIds && authorIds.length > 0) {
+          await this.userService.findByIds(authorIds);
+
+          await entityManager
+            .createQueryBuilder()
+            .delete()
+            .from(AuthorBook)
+            .where('bookId = :bookId', { bookId: id })
+            .execute();
+
+          await entityManager
+            .createQueryBuilder()
+            .insert()
+            .into(AuthorBook)
+            .values(
+              authorIds.map((authorId) => ({
+                bookId: id,
+                userId: authorId,
+              })),
+            )
+            .execute();
+        }
+
+        return await entityManager.update(Book, id, updateData);
+      },
+    );
   }
 
   async remove(id: number) {
+    await this.authorBookRepository
+      .createQueryBuilder('authorBook')
+      .leftJoinAndSelect('authorBook.book', 'book')
+      .delete()
+      .from(AuthorBook)
+      .where('bookId = :bookId', { bookId: id })
+      .execute();
+
     return await this.booksRepository
       .createQueryBuilder()
       .delete()

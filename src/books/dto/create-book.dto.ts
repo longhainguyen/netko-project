@@ -5,9 +5,11 @@ import {
   IsDate,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 import { Book } from '../entities/book.entity';
+import { Type } from 'class-transformer';
 
 export class CreateBookDto extends OmitType(Book, [
   'id',
@@ -23,10 +25,18 @@ export class CreateBookDto extends OmitType(Book, [
 
   @IsDate()
   @ApiProperty()
+  @Type(() => Date)
   publishedDate: Date;
 
   @IsArray()
   @ApiProperty()
   @IsNumber({}, { each: true })
+  @Type(() => Number)
   authorIds: number[];
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  categoryId: number;
 }

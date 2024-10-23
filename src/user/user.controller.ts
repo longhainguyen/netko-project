@@ -52,6 +52,7 @@ export class UserController {
 
   @Post('/sign-up')
   @ApiOperation({ summary: 'Create a new user' })
+  @Public()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.userService.createUser(createUserDto);
@@ -60,7 +61,7 @@ export class UserController {
       throw new HttpException(
         {
           status: HttpStatus.BAD_GATEWAY,
-          error: 'Failed to update user profile. Please try again.',
+          error: 'Failed to create user profile. Please try again.',
         },
         HttpStatus.BAD_GATEWAY,
       );

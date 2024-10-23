@@ -60,7 +60,7 @@ export class CategoryService {
       .createQueryBuilder()
       .delete()
       .from(Category)
-      .where('id = :id', { id: 1 })
+      .where('id = :id', { id: id })
       .execute();
   }
 }
